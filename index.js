@@ -101,13 +101,13 @@ document.getElementById('topRightButton').addEventListener('click', function() {
   else startSound();
 });
 
-// renderer.xr.addEventListener( 'sessionstart', function ( event ) {
-//   startSound();
-// });
+renderer.xr.addEventListener( 'sessionstart', function ( event ) {
+  startSound();
+});
 
-// renderer.xr.addEventListener( 'sessionend', function ( event ) {
-//   stopSound();
-// });
+renderer.xr.addEventListener( 'sessionend', function ( event ) {
+  stopSound();
+});
 
 // -------- RENDER --------
 function update() {
