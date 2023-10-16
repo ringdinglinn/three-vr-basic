@@ -18,11 +18,6 @@ scene.background = new THREE.Color(0x29BFFF);
 const lightA = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
 scene.add( lightA );
 
-// --------- VR ----------
-// import { VRButton } from 'three/addons/webxr/VRButton.js';
-// document.body.appendChild( VRButton.createButton( renderer ) );
-// renderer.xr.enabled = true;
-
 
 // ----------- AUDIO -----------
 const listener = new THREE.AudioListener();
@@ -59,6 +54,18 @@ loader.load('./models/model.glb', function (gltf) {
   clips.forEach( function ( clip ) {
     mixer.clipAction( clip ).play();
   });
+
+  function update() {
+    mixer.update(clock.getDelta());
+  }
+  
+  renderer.setAnimationLoop( anim );
+  
+  function anim() {
+    update();
+    controls.update();
+    renderer.render(scene, camera);
+  }
 });
 
 
@@ -108,16 +115,3 @@ renderer.xr.addEventListener( 'sessionstart', function ( event ) {
 renderer.xr.addEventListener( 'sessionend', function ( event ) {
   stopSound();
 });
-
-// -------- RENDER --------
-function update() {
-  mixer.update(clock.getDelta());
-}
-
-renderer.setAnimationLoop( anim );
-
-function anim() {
-  update();
-  controls.update();
-  renderer.render(scene, camera);
-}
