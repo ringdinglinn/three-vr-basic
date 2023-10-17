@@ -13,10 +13,7 @@ const { scene, renderer, camera, controls } = wizard;
 renderer.shadowMap.enabled = true;
 renderer.xr.enabled = true;
 
-scene.background = new THREE.Color(0x29BFFF);
-
-const lightA = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
-scene.add( lightA );
+scene.background = new THREE.Color(0x0000FF);
 
 
 // ----------- AUDIO -----------
