@@ -30,41 +30,107 @@ audioLoader.load( './sounds/track.mp3', function( buffer ) {
 var clock  = new THREE.Clock();
 
 
+// ---------- LOAD ANIMATION DATA ----------
+let mixer;
+const jsonLoader = new THREE.FileLoader();
+var triggerAnimsNames = [];
+var triggerAnims = {};
+var animDict = {};
+jsonLoader.load(
+  'animation.json',
+  // LOADED
+  function ( data ) {
+    animDict = JSON.parse(data);
+    Object.keys(animDict).map(key => {
+      let anims = animDict[key];
+      triggerAnimsNames.push(...anims);
+    });
+    loadModels(); // load models when done with json
+	},
+  // IN PROGRESS
+  function ( xhr ) {
+		console.log( 'anim data ' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+	},
+	// ERROR
+	function ( err ) {
+		console.error( err );
+	}
+);
+
 // ---------- LOAD MODELS ----------
 import { GLTFLoader } from 'GLTFLoader';
 const loader = new GLTFLoader();
 
-loader.load('./models/model.glb', function (gltf) {
+function loadModels() {
+  loader.load('./models/model.glb', function (gltf) {
 
-  gltf.scene.traverse( function( node ) {
-    console.log( node.name )
-
-    if ( node.isMesh  ) node.castShadow = true;
-    if ( node.isMesh ) node.receiveShadow = true;
-  });
- 
-  scene.add(gltf.scene);
- 
-  const mixer = new THREE.AnimationMixer( gltf.scene );
-  const clips = gltf.animations;
-
-  clips.forEach( function ( clip ) {
-    mixer.clipAction( clip ).play();
-  });
-
-  function update() {
-    mixer.update(clock.getDelta());
-  }
+    // Objekte aufsetzen
+    gltf.scene.traverse( function( node ) {
+      console.log(node.name);
+      if ( node.isMesh ) node.castShadow = true;
+      if ( node.isMesh ) node.receiveShadow = true;
+      if (node.name in animDict) makeSelectable(node);
+    });
   
-  renderer.setAnimationLoop( anim );
+    // Animationen aufsetzen
+    mixer = new THREE.AnimationMixer( gltf.scene );
+    const clips = gltf.animations;
+    clips.forEach( clip => {
+      console.log(clip);
+      if (triggerAnimsNames.includes(clip.name)) {
+        mixer.clipAction( clip ).setLoop(THREE.LoopOnce);
+        mixer.clipAction( clip ).clampWhenFinished = true;
+        triggerAnims[clip.name] = clip;
+      } else {
+        mixer.clipAction( clip ).play();
+      }
+    });  
   
-  function anim() {
-    update();
-    controls.update();
-    renderer.render(scene, camera);
-  }
-});
+    scene.add(gltf.scene);
+  
+    // -------- RENDER LOOP ---------
+    function update() {
+      mixer.update(clock.getDelta());
+    }
+    renderer.setAnimationLoop( anim );
+  
+    function anim() {
+      update();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+  });
+}
 
+// -------- OBJECT SELECTION -----------
+const handleSelectStart = (object, controller) => {
+  object.material.emissive.setScalar(0.5);
+  console.log(`selected ${object.name}`)
+};
+
+const handleSelectEnd = (object, controller) => {
+  console.log(animDict);
+  object.material.emissive.setScalar(0);
+  console.log(animDict[object.name]);
+  animDict[object.name].forEach( clipName => {
+    mixer.clipAction( triggerAnims[clipName] ).play();
+  });
+  makeUnselectable(object);
+  console.log(`deselected ${object.name}`)
+};
+
+const makeSelectable = (object) => {
+  const type = 'selectableShape';
+  object.userData.type = type;
+  controls.interaction.selectStartHandlers[type] = handleSelectStart;
+  controls.interaction.selectEndHandlers[type] = handleSelectEnd;
+  controls.interaction.selectableObjects.push(object);
+}
+
+const makeUnselectable = (object) => {
+  const index = controls.interaction.selectableObjects.indexOf(2);
+  controls.interaction.selectableObjects.splice(index, 1);
+}
 
 // ---------- HANDLERS ----------
 document.onreadystatechange = () => {
@@ -75,7 +141,6 @@ document.onreadystatechange = () => {
   }
 };
 
-
 // ------- AUDIO CONTROLS ----------
 var button = document.createElement('button');
 var buttonText = 'PLAY SOUND';
@@ -83,7 +148,6 @@ button.innerHTML = buttonText;
 button.id = 'topRightButton';
 button.className = 'top-right-button';
 
-// Add the button to the document
 document.body.appendChild(button);
 
 function stopSound() {

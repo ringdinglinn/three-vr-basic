@@ -888,10 +888,7 @@ var Interaction = class {
     this.intersectedObjects.push(object);
     Interaction.handleButtonMaterialMaps(object, true);
     if (object.material instanceof THREE5.MeshStandardMaterial) {
-      object.material.emissive?.setScalar(this.intersectedObjectEmissiveVal);
-    }
-    if (object.userData.type in this.intersectionHandlers) {
-      this.intersectionHandlers[object.userData.type](object);
+      object.material.emissive?.setScalar(0.5);
     }
   }
 };
