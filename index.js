@@ -40,6 +40,7 @@ jsonLoader.load(
   'animation.json',
   // LOADED
   function ( data ) {
+    data = data.replace(".", "");
     animDict = JSON.parse(data);
     Object.keys(animDict).map(key => {
       let anims = animDict[key];
