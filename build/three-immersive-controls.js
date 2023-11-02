@@ -779,6 +779,16 @@ var KeyboardControls = class {
         move.y -= diff;
       }
     }
+
+    let nextPos = new THREE3.Vector3(0,0,0);
+    nextPos.copy(this.controls.player.position);
+    nextPos.add(move);
+    let dist = nextPos.distanceTo(new THREE3.Vector3(0, nextPos.y, 0));
+    if (dist > this.controls.radius) {
+      move.x = 0;
+      move.z = 0;
+    }
+
     this.controls.player.position.add(move);
     let needToRotate = false;
     if (this.activeKeys.includes("ArrowLeft")) {
@@ -927,7 +937,8 @@ var ThreeImmersiveControls = class {
     vrControls = true,
     keyboardControls = true,
     mouseControls = true,
-    showFps = false
+    showFps = false,
+    radius = 20
   } = {}) {
     this.camera = camera;
     this.renderer = renderer;
@@ -939,6 +950,7 @@ var ThreeImmersiveControls = class {
     this.camera.position.set(0, 0, 0);
     this.floor = floor;
     this.gravity = gravity;
+    this.radius = radius;
     this.moveSpeed = moveSpeed;
     this.rotateSpeed = rotateSpeed;
     this.tumble = tumble;

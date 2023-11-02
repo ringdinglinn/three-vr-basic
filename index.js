@@ -5,10 +5,11 @@ import Wizard from '@depasquale/three-wizard';
 // --------- SCENE SETUP ---------
 const wizard = new Wizard({
   controls: 'ImmersiveControls',
-  showFps: true,
 });
 
 const { scene, renderer, camera, controls } = wizard;
+
+controls.radius = 15; // <----- Radius des begehbaren Bereichs hier definieren
 
 renderer.shadowMap.enabled = true;
 renderer.xr.enabled = true;
