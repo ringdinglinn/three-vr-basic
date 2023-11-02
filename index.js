@@ -9,12 +9,12 @@ const wizard = new Wizard({
 
 const { scene, renderer, camera, controls } = wizard;
 
-controls.radius = 15; // <----- Radius des begehbaren Bereichs hier definieren
+controls.radius = 15;                             // <----- Radius des begehbaren Bereichs hier definieren
 
 renderer.shadowMap.enabled = true;
 renderer.xr.enabled = true;
 
-scene.background = new THREE.Color(0x0000FF);
+scene.background = new THREE.Color(0x0000FF);      // <----- Hintegrundfarbe definieren
 
 
 // ----------- AUDIO -----------
