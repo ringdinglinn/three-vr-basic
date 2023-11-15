@@ -20,6 +20,16 @@ scene.background = new THREE.Color(0x0000FF);     // <----- Hintegrundfarbe defi
 const light = new THREE.AmbientLight( 0x404040 ); // <----- Licht definieren
 scene.add( light );
 
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+directionalLight.position.set(10,4,3);
+directionalLight.castShadow = true;
+scene.add( directionalLight );
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+
+// const helper = new THREE.CameraHelper( directionalLight.shadow.camera );
+// scene.add( helper );
+
 
 // ----------- AUDIO -----------
 const listener = new THREE.AudioListener();
