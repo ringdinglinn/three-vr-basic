@@ -14,7 +14,11 @@ controls.radius = 15;                             // <----- Radius des begehbare
 renderer.shadowMap.enabled = true;
 renderer.xr.enabled = true;
 
-scene.background = new THREE.Color(0x0000FF);      // <----- Hintegrundfarbe definieren
+scene.background = new THREE.Color(0x0000FF);     // <----- Hintegrundfarbe definieren
+
+
+const light = new THREE.AmbientLight( 0x404040 ); // <----- Licht definieren
+scene.add( light );
 
 
 // ----------- AUDIO -----------
@@ -31,22 +35,26 @@ audioLoader.load( './sounds/track.mp3', function( buffer ) {
 var clock  = new THREE.Clock();
 
 
-// ---------- LOAD ANIMATION DATA ----------
+// ---------- LOAD CONFIG DATA FROM JSON ----------
 let mixer;
 const jsonLoader = new THREE.FileLoader();
 var triggerAnimsNames = [];
 var triggerAnims = {};
 var animDict = {};
+var moveableObjs = []
 jsonLoader.load(
-  'animation.json',
+  'einstellungen.json',
   // LOADED
   function ( data ) {
     data = data.replace(".", "");
-    animDict = JSON.parse(data);
+    data = JSON.parse(data)
+    animDict = data["Animation-Trigger"];
     Object.keys(animDict).map(key => {
       let anims = animDict[key];
       triggerAnimsNames.push(...anims);
     });
+    moveableObjs = data["Bewegbare Objekte"];
+    console.log(moveableObjs)
     loadModels(); // load models when done with json
 	},
   // IN PROGRESS
@@ -72,13 +80,13 @@ function loadModels() {
       if ( node.isMesh ) node.castShadow = true;
       if ( node.isMesh ) node.receiveShadow = true;
       if (node.name in animDict) makeSelectable(node);
+      if (moveableObjs.includes(node.name)) makeSelectable(node);
     });
   
     // Animationen aufsetzen
     mixer = new THREE.AnimationMixer( gltf.scene );
     const clips = gltf.animations;
     clips.forEach( clip => {
-      console.log(clip);
       if (triggerAnimsNames.includes(clip.name)) {
         mixer.clipAction( clip ).setLoop(THREE.LoopOnce);
         mixer.clipAction( clip ).clampWhenFinished = true;
@@ -89,36 +97,100 @@ function loadModels() {
     });  
   
     scene.add(gltf.scene);
-  
-    // -------- RENDER LOOP ---------
-    function update() {
-      mixer.update(clock.getDelta());
-    }
-    renderer.setAnimationLoop( anim );
-  
-    function anim() {
-      update();
-      controls.update();
-      renderer.render(scene, camera);
-    }
+
+    wizard.start(render);
   });
+}
+
+function anim() {
+  mixer.update(clock.getDelta());
+  renderer.render(scene, camera);
 }
 
 // -------- OBJECT SELECTION -----------
 const handleSelectStart = (object, controller) => {
   object.material.emissive.setScalar(0.5);
   console.log(`selected ${object.name}`)
+
+  let moveable = moveableObjs.includes(object.name);
+
+  if (moveable) {
+    attachToHand(object, controller);
+  }
 };
 
 const handleSelectEnd = (object, controller) => {
   console.log(animDict);
   object.material.emissive.setScalar(0);
-  console.log(animDict[object.name]);
+
+  let moveable = moveableObjs.includes(object.name);
+  let anim = object.name in animDict;
+
+  if (anim) {
+    playObjectAnimation(object);
+    makeUnselectable(object);
+  } 
+  
+  if (moveable) {
+    detachFromHand(object, controller);
+  }
+
+  console.log(`deselected ${object.name}`)
+};
+
+const playObjectAnimation = (object) => {
   animDict[object.name].forEach( clipName => {
     mixer.clipAction( triggerAnims[clipName] ).play();
   });
-  makeUnselectable(object);
-  console.log(`deselected ${object.name}`)
+}
+
+let objectAttachedToMouse;
+let distanceToIntersection;
+let offset;
+
+const attachToHand = (object, controller) => {
+  if (controls.vrControls?.inVr) {
+    // VR controller
+    if (controller) {
+      controller.attach(object);
+      controller.userData.selected = object;
+    }
+  } else {
+    // Mouse
+    objectAttachedToMouse = object;
+  }
+}
+
+const detachFromHand = (object, controller) => {
+  // objects.attach(object); what is this??
+  if (controls.vrControls?.inVr) {
+    // VR controller
+    if (controller) {
+      controller.userData.selected = undefined;
+    }
+  } else {
+    // Mouse
+    objectAttachedToMouse = undefined;
+    distanceToIntersection = undefined;
+    offset = undefined;
+  }
+}
+
+const render = () => {
+  anim();
+  if (objectAttachedToMouse) {
+    if (!offset) {
+      offset = new THREE.Vector3().subVectors(objectAttachedToMouse.position, controls.mouseControls.intersections[0].point);
+    }
+    if (!distanceToIntersection) {
+      distanceToIntersection = new THREE.Vector3().subVectors(controls.cameraData.worldPosition, controls.mouseControls.intersections[0].point).length();
+    }
+    const vector = new THREE.Vector3();
+    vector.set(controls.mouseControls.mousePosition.x, controls.mouseControls.mousePosition.y, 1);
+    vector.unproject(camera);
+    vector.sub(controls.cameraData.worldPosition).normalize();
+    objectAttachedToMouse.position.copy(controls.cameraData.worldPosition).add(vector.multiplyScalar(distanceToIntersection)).add(offset);
+  }
 };
 
 const makeSelectable = (object) => {
