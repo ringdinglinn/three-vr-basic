@@ -68,7 +68,6 @@ function makeAudioSource( object ) {
 let videoTextures = [];
 function createVideo(object, name) {
   const video = document.createElement('video');
-  // video.src = "videos/" + src;
   video.controls = false;
   video.muted = true;
   video.autoplay = true;
@@ -78,7 +77,7 @@ function createVideo(object, name) {
   e.appendChild(video);
 
   const source = document.createElement('source');
-  source.src = "./videos" + name;
+  source.src = "./videos/" + name;
   source.type = "video/mp4";
   const gitSource = document.createElement('source');
   gitSource.src = "https://github.com/ringdinglinn/three-vr-basic/blob/master/videos/" + name + "?raw=true";
