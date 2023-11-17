@@ -74,8 +74,8 @@ function createVideo(object, name) {
   video.loop = true;
   video.playsInline = true;
   video.width = 1;
-  video.height = 0;
-  video.style = "opacity: 0.01;"
+  video.height = 1;
+  video.style = "opacity: 0.01; display: none;"
   const e = document.getElementById("videoContainer");
   e.appendChild(video);
 
