@@ -27,6 +27,9 @@ scene.add( directionalLight );
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
 
+const objects = new THREE.Group();
+scene.add(objects);
+
 // const helper = new THREE.CameraHelper( directionalLight.shadow.camera );
 // scene.add( helper );
 
@@ -237,7 +240,7 @@ const attachToHand = (object, controller) => {
 }
 
 const detachFromHand = (object, controller) => {
-  // objects.attach(object); what is this??
+  objects.attach(object);
   if (controls.vrControls?.inVr) {
     // VR controller
     if (controller) {
