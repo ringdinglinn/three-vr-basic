@@ -75,7 +75,7 @@ function createVideo(object, name) {
   video.playsInline = true;
   video.width = 1;
   video.height = 1;
-  video.style = "opacity: 0.01; display: none;"
+  video.style = "opacity: 0.01;"
   const e = document.getElementById("videoContainer");
   e.appendChild(video);
 
@@ -132,7 +132,7 @@ jsonLoader.load(
 	},
   // IN PROGRESS
   function ( xhr ) {
-		console.log( 'anim data ' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+    // nothing
 	},
 	// ERROR
 	function ( err ) {
@@ -179,7 +179,7 @@ function loadModels() {
 function anim() {
   mixer.update(clock.getDelta());
   renderer.render(scene, camera);
-  videoTextures.forEach( tex => tex.needsUpdate = true );
+  // videoTextures.forEach( tex => tex.needsUpdate = true );
 }
 
 // -------- OBJECT SELECTION -----------
