@@ -165,7 +165,7 @@ function loadModels() {
 function anim() {
   mixer.update(clock.getDelta());
   renderer.render(scene, camera);
-  videoTextures.forEach( tex => tex.needsUpdate = true );
+  // videoTextures.forEach( tex => tex.needsUpdate = true );
 }
 
 // -------- OBJECT SELECTION -----------
