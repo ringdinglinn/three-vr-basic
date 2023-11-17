@@ -73,6 +73,7 @@ function createVideo(object, name) {
   video.autoplay = true;
   video.loop = true;
   video.playsInline = true;
+  video.style = "display: none;";
   const e = document.getElementById("videoContainer");
   e.appendChild(video);
 
