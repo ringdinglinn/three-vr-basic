@@ -94,7 +94,8 @@ function makeVideoMat(video, object) {
   texture.colorSpace = THREE.SRGBColorSpace;
   var movieMaterial = new THREE.MeshStandardMaterial({
     emissiveMap: texture,
-    map: texture
+    map: texture,
+    emissive: new THREE.Color(0xFFFFFF),
   });
   object.material = movieMaterial;
   videoTextures.push(texture);
