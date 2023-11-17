@@ -66,18 +66,25 @@ function makeAudioSource( object ) {
 // ----------- VIDEO -----------
 
 let videoTextures = [];
-function makeVideoMat(object, src) {
-  const video = document.getElementById('video');
+function makeVideoMat(object, name) {
+  const video = document.createElement('video');
   // video.src = "videos/" + src;
-  // video.controls = false;
-  // video.muted = true;
-  // video.height = 240;
-  // video.width = 320;
-  // video.autoplay = true;
-  // video.loop = true;
-  // video.playsInline = true;
-  // const e = document.getElementById("videoContainer");
-  // e.appendChild(video);
+  video.controls = false;
+  video.muted = true;
+  video.autoplay = true;
+  video.loop = true;
+  video.playsInline = true;
+  const e = document.getElementById("videoContainer");
+  e.appendChild(video);
+
+  const source = document.createElement('source');
+  source.src = "./videos" + name;
+  source.type = "video/mp4";
+  const gitSource = document.createElement('source');
+  gitSource.src = "https://github.com/ringdinglinn/three-vr-basic/blob/master/videos/" + name + "?raw=true";
+  gitSource.type = "video/mp4"
+  video.appendChild(source);
+  video.appendChild(gitSource);
 
   let texture = new THREE.VideoTexture( video );
   texture.colorSpace = THREE.SRGBColorSpace;
