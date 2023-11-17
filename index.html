@@ -11,17 +11,18 @@
 </head>
 
 <body>
-  <!-- <div class="absolute top-0 z-10 w-full select-none text-center p-2 space-y-2">
+  <div class="absolute top-0 z-10 w-full select-none text-center p-2 space-y-2">
    
     <div id="loadingIndicator">
       Loading...
     </div>
-  </div> -->
-  <video id='video' width="320" height="240" playsinline webkit-playsinline loop autoplay muted>
-    <!-- <source src="./videos/wasser.mp4" type="video/mp4"> -->
+  </div>
+  <video width="320" height="240" controls>
     <source src="https://github.com/ringdinglinn/three-vr-basic/blob/master/videos/wasser.mp4?raw=true" type="video/mp4">
+    <!-- <source src="./videos/wasser.mp4" type="video/mp4"> -->
+  Your browser does not support the video tag.
   </video>
-  <!-- <script>
+  <script>
     window.onerror = () => {
       document.querySelector('#loadingIndicator').style.color = 'red';
       document.querySelector('#loadingIndicator').innerHTML = 'Error';
@@ -44,7 +45,7 @@
       }
     }
   </script>
-  <script type="module" src="./index.js"></script> -->
+  <script type="module" src="./index.js"></script>
 </body>
 
 </html>
