@@ -140,7 +140,7 @@ function loadModels() {
       if (node.name in animDict) makeSelectable(node);
       if (moveableObjs.includes(node.name)) makeSelectable(node);
       if (node.name in audioDict) makeAudioSource(node);
-      if (node.name in videoDict) makeVideoMat(node, videoDict[node.name]);
+      // if (node.name in videoDict) makeVideoMat(node, videoDict[node.name]);
     });
   
     // Animationen aufsetzen
