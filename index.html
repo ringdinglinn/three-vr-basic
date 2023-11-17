@@ -11,17 +11,16 @@
 </head>
 
 <body>
-<!-- ha: video definieren -->
-  <!-- <video id="video1" loop crossOrigin="anonymous" playsinline style="display:none">
-    <source src="./video-image/Pool_1.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
-  </video> -->
-
   <div class="absolute top-0 z-10 w-full select-none text-center p-2 space-y-2">
    
     <div id="loadingIndicator">
       Loading...
     </div>
   </div>
+  <video 
+    id='video' width="320" height="240" playsinline webkit-playsinline loop autoplay muted style="background-color: white;"
+    src="videos/wasser.mp4" type="video/mp4">
+  </video>
   <script>
     window.onerror = () => {
       document.querySelector('#loadingIndicator').style.color = 'red';

@@ -6,5 +6,13 @@
     "Bewegbare Objekte":
     [
         "Kissen"
-    ]
+    ],
+    "Audioquellen":
+    {
+        "Audio1":"human-sleeping.wav"
+    },
+    "Videomaterialien":
+    {
+        "Icosphere":"wasser.mp4"
+    }
 }

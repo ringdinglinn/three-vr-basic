@@ -17,10 +17,10 @@ renderer.xr.enabled = true;
 scene.background = new THREE.Color(0x0000FF);     // <----- Hintegrundfarbe definieren
 
 
-const light = new THREE.AmbientLight( 0x404040 ); // <----- Licht definieren
+const light = new THREE.AmbientLight( 0x404040 ); // <----- Umgebungslicht definieren
 scene.add( light );
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 ); // <----- Sonnenlicht definieren
 directionalLight.position.set(10,4,3);
 directionalLight.castShadow = true;
 scene.add( directionalLight );
@@ -34,24 +34,72 @@ directionalLight.shadow.mapSize.height = 2048;
 // ----------- AUDIO -----------
 const listener = new THREE.AudioListener();
 camera.add( listener );
+let sounds = []
+
+// load ambient
 const sound = new THREE.Audio( listener );
 const audioLoader = new THREE.AudioLoader();
-audioLoader.load( './sounds/track.mp3', function( buffer ) {
+audioLoader.load( './sounds/ambient.mp3', function( buffer ) {
 	sound.setBuffer( buffer );
 	sound.setLoop( true );
 	sound.setVolume( 0.5 );
 });
+sounds.push(sound);
 
-var clock  = new THREE.Clock();
+function makeAudioSource( object ) {
+  const sound = new THREE.PositionalAudio( listener );
 
+  var invisibleMat = new THREE.MeshLambertMaterial({color: 0x00ff00, transparent: true, opacity: 0.0});
+  object.material = invisibleMat;
+
+  const audioLoader = new THREE.AudioLoader();
+  audioLoader.load( "sounds/" + audioDict[object.name], function( buffer ) {
+    sound.setBuffer( buffer );
+    sound.setLoop( true );
+    sound.setRefDistance( 2 );
+    sounds.push( sound );
+  });
+
+  object.add( sound );
+}
+
+// ----------- VIDEO -----------
+
+let videoTextures = [];
+function makeVideoMat(object, src) {
+  const video = document.getElementById('video');
+  // video.src = "videos/" + src;
+  // video.controls = false;
+  // video.muted = true;
+  // video.height = 240;
+  // video.width = 320;
+  // video.autoplay = true;
+  // video.loop = true;
+  // video.playsInline = true;
+  // const e = document.getElementById("videoContainer");
+  // e.appendChild(video);
+
+  let texture = new THREE.VideoTexture( video );
+  texture.colorSpace = THREE.SRGBColorSpace;
+  var movieMaterial = new THREE.MeshStandardMaterial({
+    emissiveMap: texture,
+    map: texture
+  });
+  object.material = movieMaterial;
+  videoTextures.push(texture);
+}
 
 // ---------- LOAD CONFIG DATA FROM JSON ----------
+var clock  = new THREE.Clock();
+
 let mixer;
 const jsonLoader = new THREE.FileLoader();
 var triggerAnimsNames = [];
 var triggerAnims = {};
 var animDict = {};
 var moveableObjs = []
+var audioDict = {};
+var videoDict = {};
 jsonLoader.load(
   'einstellungen.json',
   // LOADED
@@ -64,7 +112,8 @@ jsonLoader.load(
       triggerAnimsNames.push(...anims);
     });
     moveableObjs = data["Bewegbare Objekte"];
-    console.log(moveableObjs)
+    audioDict = data["Audioquellen"];
+    videoDict = data["Videomaterialien"]
     loadModels(); // load models when done with json
 	},
   // IN PROGRESS
@@ -86,11 +135,12 @@ function loadModels() {
 
     // Objekte aufsetzen
     gltf.scene.traverse( function( node ) {
-      console.log(node.name);
       if ( node.isMesh ) node.castShadow = true;
       if ( node.isMesh ) node.receiveShadow = true;
       if (node.name in animDict) makeSelectable(node);
       if (moveableObjs.includes(node.name)) makeSelectable(node);
+      if (node.name in audioDict) makeAudioSource(node);
+      if (node.name in videoDict) makeVideoMat(node, videoDict[node.name]);
     });
   
     // Animationen aufsetzen
@@ -115,6 +165,7 @@ function loadModels() {
 function anim() {
   mixer.update(clock.getDelta());
   renderer.render(scene, camera);
+  videoTextures.forEach( tex => tex.needsUpdate = true );
 }
 
 // -------- OBJECT SELECTION -----------
@@ -236,14 +287,14 @@ document.body.appendChild(button);
 
 function stopSound() {
   if (!sound.isPlaying) return;
-  sound.stop();
+  sounds.forEach(sound => sound.stop() );
   buttonText = 'PLAY SOUND'
   button.innerHTML = buttonText;
 }
 
 function startSound() {
   if (sound.isPlaying) return;
-  sound.play();
+  sounds.forEach(sound => sound.play() );
   buttonText = 'MUTE SOUND'
   button.innerHTML = buttonText;
 }
