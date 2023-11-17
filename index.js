@@ -66,7 +66,7 @@ function makeAudioSource( object ) {
 // ----------- VIDEO -----------
 
 let videoTextures = [];
-function makeVideoMat(object, name) {
+function createVideo(object, name) {
   const video = document.createElement('video');
   // video.src = "videos/" + src;
   video.controls = false;
@@ -86,6 +86,10 @@ function makeVideoMat(object, name) {
   video.appendChild(source);
   video.appendChild(gitSource);
 
+  video.addEventListener('loadeddata', makeVideoMat(video, object), false);
+}
+
+function makeVideoMat(video, object) {
   let texture = new THREE.VideoTexture( video );
   texture.colorSpace = THREE.SRGBColorSpace;
   var movieMaterial = new THREE.MeshStandardMaterial({
@@ -147,7 +151,7 @@ function loadModels() {
       if (node.name in animDict) makeSelectable(node);
       if (moveableObjs.includes(node.name)) makeSelectable(node);
       if (node.name in audioDict) makeAudioSource(node);
-      if (node.name in videoDict) makeVideoMat(node, videoDict[node.name]);
+      if (node.name in videoDict) createVideo(node, videoDict[node.name]);
     });
   
     // Animationen aufsetzen
